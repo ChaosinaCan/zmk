@@ -12,6 +12,8 @@
 #include <drivers/sensor.h>
 #include <logging/log.h>
 
+#include "battery_common.h"
+
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 struct io_channel_config {
@@ -41,19 +43,6 @@ struct bvd_data {
     uint16_t voltage;
     uint8_t state_of_charge;
 };
-
-static uint8_t lithium_ion_mv_to_pct(int16_t bat_mv) {
-    // Simple linear approximation of a battery based off adafruit's discharge graph:
-    // https://learn.adafruit.com/li-ion-and-lipoly-batteries/voltages
-
-    if (bat_mv >= 4200) {
-        return 100;
-    } else if (bat_mv <= 3450) {
-        return 0;
-    }
-
-    return bat_mv * 2 / 15 - 459;
-}
 
 static int bvd_sample_fetch(const struct device *dev, enum sensor_channel chan) {
     struct bvd_data *drv_data = dev->data;
